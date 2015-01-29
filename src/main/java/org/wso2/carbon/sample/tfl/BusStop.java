@@ -5,7 +5,7 @@ public class BusStop {
 	public double Longitude;
 	public double Latitude;
 	
-	public BusStop(String StopID, double lon, double lat) {
+	public BusStop(String StopID, double lat, double lon) {
 		this.StopID = StopID;
 		this.Latitude = lon;
 		this.Latitude = lat;

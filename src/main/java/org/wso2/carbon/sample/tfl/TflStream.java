@@ -35,7 +35,6 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
 import org.apache.axiom.om.util.StAXUtils;
 
-import java.util.Random;
 
 public class TflStream {
 	private static QueueConnectionFactory queueConnectionFactory = null;
@@ -44,9 +43,10 @@ public class TflStream {
 	private static String msg;
 	static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
 	static HashMap<String, Bus> busses = new HashMap<String, Bus>();
+	public static long timeOffset;
+	public static SendData sendData = new SendData();
 
 	public static void main(String[] args) throws XMLStreamException {
-		Random random = new Random();
 		queueConnectionFactory = JNDIContext.getInstance().getQueueConnectionFactory();
 		TflStream publisher = new TflStream();
 		String queueName = "";
@@ -61,9 +61,10 @@ public class TflStream {
 			long time = System.currentTimeMillis();
 			map = sendGetStops();
 			System.out.println("Time to get stops: " + (System.currentTimeMillis() - time));
-			time = System.currentTimeMillis();
-			sendGetBusses();
-			System.out.println("Time to get busses: " + (System.currentTimeMillis() - time));
+			GetData g = new GetData();
+			g.start();
+			sendData.start();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -74,8 +75,8 @@ public class TflStream {
 	// HTTP GET request
 	private static HashMap<String, BusStop> sendGetStops() throws Exception {
 
-		String url =
-		             "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2&ReturnList=StopID,Latitude,Longitude";
+		String url = "http://localhost/TFL/stop.txt";
+		String[] arr;
 
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -90,11 +91,17 @@ public class TflStream {
 		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 		String inputLine;
 
+		long time = System.currentTimeMillis();
+		sendData.currentTime = time;
 		HashMap<String, BusStop> map = new HashMap<String, BusStop>();
-		in.readLine();
+		inputLine = in.readLine();
+		arr = inputLine.replace("[\\[\\]\"]", "").split(",");
+		timeOffset = time - Long.parseLong(arr[2]);
+		
+		
 		while ((inputLine = in.readLine()) != null) {
 			inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-			String arr[] = inputLine.split(",");
+			arr = inputLine.split(",");
 			BusStop temp = new BusStop(arr[1], Double.parseDouble(arr[2]),
 			                           Double.parseDouble(arr[3]));
 			map.put(arr[1], temp);
@@ -106,38 +113,9 @@ public class TflStream {
 
 	}
 
-	// stop, lat, lon, line, bus, time
-	private static void sendGetBusses() throws Exception {
-		String url = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2&ReturnList=StopID,Latitude,Longitude,LineID,VehicleID,EstimatedTime";
-
-		URL obj = new URL(url);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-		// optional default is GET
-		con.setRequestMethod("GET");
-
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + url);
-		System.out.println("Response Code : " + responseCode);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		in.readLine();
-		while ((inputLine = in.readLine()) != null) {
-			inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-			String arr[] = inputLine.split(",");
-
-			Bus bus = busses.get(arr[5]);
-			if (bus == null) {
-				bus = new Bus(arr[5], Double.parseDouble(arr[3]), Double.parseDouble(arr[2]));
-				busses.put(arr[5], bus);
-			} else {
-
-			}
-			// System.out.println(count ++);
-		}
-		in.close();
-		System.out.println("Added busses to a hashmap.");
+	// stop, line, bus, time
+	private static void sendGetBusses(String url) throws Exception {
+		
 	}
 
 	/**
