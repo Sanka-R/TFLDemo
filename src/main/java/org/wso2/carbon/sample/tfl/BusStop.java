@@ -7,7 +7,11 @@ public class BusStop {
 	
 	public BusStop(String StopID, double lat, double lon) {
 		this.StopID = StopID;
-		this.Latitude = lon;
 		this.Latitude = lat;
+		this.Longitude = lon;
+	}
+	@Override
+	public String toString() {
+	    return "BusStop " + StopID + " Lat: "+Latitude+" Long: " + Longitude+" ";
 	}
 }

@@ -14,7 +14,7 @@ public class GetData extends Thread {
 
 	public void run() {
 		BusStopData b;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 1; i < 100; i++) {
 			b = new BusStopData("http://localhost/TFL/data" + i + ".txt");
 			b.start();
 			try {

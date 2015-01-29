@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
@@ -42,7 +43,7 @@ public class TflStream {
 	private static final List<String> xmlMsgs = new ArrayList();
 	private static String msg;
 	static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
-	static HashMap<String, Bus> busses = new HashMap<String, Bus>();
+	static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
 	public static long timeOffset;
 	public static SendData sendData = new SendData();
 
@@ -59,10 +60,12 @@ public class TflStream {
 		publisher.publish(queueName, xmlMsgs);
 		try {
 			long time = System.currentTimeMillis();
-			map = sendGetStops();
+			sendGetStops();
 			System.out.println("Time to get stops: " + (System.currentTimeMillis() - time));
+			sendData.currentTime = System.currentTimeMillis();
 			GetData g = new GetData();
 			g.start();
+			Thread.sleep(1000);
 			sendData.start();
 			
 		} catch (Exception e) {
@@ -73,7 +76,7 @@ public class TflStream {
 	}
 
 	// HTTP GET request
-	private static HashMap<String, BusStop> sendGetStops() throws Exception {
+	private static void sendGetStops() throws Exception {
 
 		String url = "http://localhost/TFL/stop.txt";
 		String[] arr;
@@ -92,22 +95,24 @@ public class TflStream {
 		String inputLine;
 
 		long time = System.currentTimeMillis();
-		sendData.currentTime = time;
-		HashMap<String, BusStop> map = new HashMap<String, BusStop>();
+		System.out.println(time);
 		inputLine = in.readLine();
-		arr = inputLine.replace("[\\[\\]\"]", "").split(",");
+		inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
+		arr = inputLine.split(",");
 		timeOffset = time - Long.parseLong(arr[2]);
 		
 		
 		while ((inputLine = in.readLine()) != null) {
 			inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
 			arr = inputLine.split(",");
+			//System.out.println(Double.parseDouble(arr[3]));
+			//System.out.println(Double.parseDouble(arr[2]));
 			BusStop temp = new BusStop(arr[1], Double.parseDouble(arr[2]),
 			                           Double.parseDouble(arr[3]));
+			System.out.println(temp);
 			map.put(arr[1], temp);
 		}
 		in.close();
-		return map;
 		// print result
 		// System.out.println(response.toString());
 
@@ -127,7 +132,7 @@ public class TflStream {
 	 *            - message to send
 	 */
 
-	public void publish(String queueName, List<String> msgList) throws XMLStreamException {
+	public static void publish(String queueName, List<String> msgList) throws XMLStreamException {
 		// create queue connection
 		QueueConnection queueConnection = null;
 		try {
