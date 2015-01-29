@@ -22,9 +22,9 @@ public class Bus {
 		part1 =
 		        "<geodata:rawInputStream xmlns:geodata=\"http://samples.wso2.org/\">\n" + " <geodata:data>\n" + "  <geodata:id>";
 
-		part2 = "</geodata:id>\n" + "  <geodata:timestamp>";
+		part2 = "</geodata:id>\n" + "  <geodata:timeStamp>";
 
-		part3 = "</geodata:timestamp>\n" + "  <geodata:latitude>";
+		part3 = "</geodata:timeStamp>\n" + "  <geodata:latitude>";
 
 		part4 = "</geodata:latitude>\n" + "  <geodata:longitude>";
 
@@ -51,7 +51,7 @@ public class Bus {
 	public void setData(BusStop bt, long time) {
 		Prediction p = predictionsMap.get(bt);
 		if (p == null) {
-			p = new Prediction(bt, time);
+			p = new Prediction(bt, time + TflStream.timeOffset);
 			predictionsMap.put(bt, p);
 			predictions.add(p);
 		} else {
@@ -70,39 +70,43 @@ public class Bus {
 
 	public void move(long from, long period) {
 		Prediction p = predictions.peek();
+		while (p != null && p.time < from) {
+			p = predictions.poll();
+			System.out.println("Removing prediction " + p.time + " lst time "+TflStream.lastTime);
+			p = predictions.peek();
+		}
 		if (p == null) return;
 		if (lastStop == null) return;
-		if (BusID.trim().equals("16433")) {
-			//System.out.println(BusID + " " + (from + period) + " " + this.Latitude + " " +
-			                   //this.Longitude + " " + this.lastStop);
+		if (BusID.trim().equals("8577")) {
+			System.out.println(BusID + " " + (from + period) + " " + this.Latitude + " " +
+			                   this.Longitude + " " + this.lastStop);
 
-			//System.out.println(p.time + " " + p.busStop);
-			//System.out.println();
+			System.out.println(p.time + " " + p.busStop);
+			System.out.println();
 		}
 		// if (p.busStop == lastStop && (p.busStop.Latitude != this.Latitude ||
 		// p.busStop.Longitude != this.Longitude)) {
 		// predictions.poll();
 		// move(from, period);
 		// }
-		if (p.time < from + period && p.busStop != lastStop) {
+		if (p.time < from + period) {
 			this.Latitude = p.busStop.Latitude;
 			this.Longitude = p.busStop.Longitude;
-			p.busStop = lastStop;
+			lastStop = p.busStop;
+			period = from + period - p.time;
+			from = p.time;
 			predictions.poll();
-			move(from + p.time, period - p.time);
+			p = predictions.peek();
 		}
-		this.Latitude =
-		                ((this.Latitude * (p.time - from - period) + p.busStop.Latitude * (period)) / (p.time -
+		
+		this.Latitude = ((this.Latitude * (p.time - from - period) + p.busStop.Latitude * (period)) / (p.time -
 		                                                                                               from + 0.0));
-		this.Longitude =
-		                 ((this.Longitude * (p.time - from - period) + p.busStop.Longitude *
+		this.Longitude = ((this.Longitude * (p.time - from - period) + p.busStop.Longitude *
 		                                                               (period)) / (p.time - from + 0.0));
-
-		msg =
-		      part1 + BusID + part2 + (from + period) + part3 + Latitude + part4 + Longitude +
-		              part5;
+		
+		msg = part1 + BusID + part2 + (from + period) + part3 + Latitude + part4 + Longitude + part5;
 		SendData.xmlMsg.add(msg);
-		System.out.println(msg);
+		//System.out.println(msg);
 	}
 
 }

@@ -15,7 +15,8 @@ public class GetData extends Thread {
 	public void run() {
 		BusStopData b;
 		for (int i = 1; i < 100; i++) {
-			b = new BusStopData("http://localhost/TFL/data" + i + ".txt");
+			b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
+			//b = new BusStopData("http://localhost/TFL/data" + i + ".txt");
 			b.start();
 			try {
 	            Thread.sleep(30000);
@@ -51,11 +52,17 @@ class BusStopData extends Thread {
 
 			BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 			String inputLine;
-			in.readLine();
+			inputLine = in.readLine();
+			inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
+			String[] arr = inputLine.split(",");
+
+			TflStream.lastTime = Long.parseLong(arr[2]) + TflStream.timeOffset;
+			
+			
 			ArrayList<Bus> newBusses = new ArrayList<Bus>();
 			while ((inputLine = in.readLine()) != null) {
 				inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-				String arr[] = inputLine.split(",");
+				arr = inputLine.split(",");
 
 				Bus bus = TflStream.busses.get(arr[3]);
 				BusStop bs = TflStream.map.get(arr[1]);

@@ -45,11 +45,11 @@ public class TflStream {
 	static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
 	static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
 	public static long timeOffset;
+	public static long lastTime = 0;
 	public static SendData sendData = new SendData();
 
 	public static void main(String[] args) throws XMLStreamException {
 		queueConnectionFactory = JNDIContext.getInstance().getQueueConnectionFactory();
-		TflStream publisher = new TflStream();
 		String queueName = "";
 		if (args.length == 0 || args[0] == null || args[0].trim().equals("")) {
 			queueName = "TflStream";
@@ -57,7 +57,7 @@ public class TflStream {
 			queueName = args[0];
 		}
 
-		publisher.publish(queueName, xmlMsgs);
+		publish(queueName, xmlMsgs);
 		try {
 			long time = System.currentTimeMillis();
 			sendGetStops();
@@ -78,7 +78,8 @@ public class TflStream {
 	// HTTP GET request
 	private static void sendGetStops() throws Exception {
 
-		String url = "http://localhost/TFL/stop.txt";
+		//String url = "http://localhost/TFL/stop.txt";
+		String url = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1&ReturnList=StopID,Latitude,Longitude";
 		String[] arr;
 
 		URL obj = new URL(url);
@@ -151,6 +152,7 @@ public class TflStream {
 			Queue queue = session.createQueue(queueName);
 			MessageProducer producer = session.createProducer(queue);
 			System.out.println("Sending XML messages on '" + queueName + "' queue");
+			System.out.println(msgList.size());
 			for (int i = 0, msgsLength = msgList.size(); i < msgsLength; i++) {
 				String xmlMessage = msgList.get(i);
 				XMLStreamReader reader = StAXUtils.createXMLStreamReader(new ByteArrayInputStream(
@@ -159,12 +161,13 @@ public class TflStream {
 				OMElement OMMessage = builder.getDocumentElement();
 				TextMessage jmsMessage = session.createTextMessage(OMMessage.toString());
 				producer.send(jmsMessage);
-				System.out.println("Tfl stream data " + (i + 1) + " sent");
+				//System.out.println("Tfl stream data " + (i + 1) + " sent");
 			}
 			producer.close();
 			session.close();
 			queueConnection.stop();
 			queueConnection.close();
+			System.out.println("Send all Tfl geodata messages.");
 		} catch (JMSException e) {
 			System.out.println("Can not subscribe." + e);
 		}
