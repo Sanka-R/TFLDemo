@@ -14,8 +14,14 @@ public class GetData extends Thread {
 
 	public void run() {
 		BusStopData b;
-		for (int i = 1; i < 100; i++) {
-			b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
+		try {
+	        getStops();
+        } catch (Exception e1) {
+        	System.out.println(e1.getMessage());
+        }
+		for (int i = 0; i < 100; i++) {
+			System.out.println("Getting Data");
+			b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2,3,4,5,6&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
 			//b = new BusStopData("http://localhost/TFL/data" + i + ".txt");
 			b.start();
 			try {
@@ -24,7 +30,50 @@ public class GetData extends Thread {
             }
 		}
 	}
+	
+	private static void getStops() throws Exception {
 
+		//String url = "http://localhost/TFL/stop.txt";
+		String url = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2,3,4,5,6&ReturnList=StopID,Latitude,Longitude";
+		String[] arr;
+
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		String inputLine;
+
+		long time = System.currentTimeMillis();
+		System.out.println(time);
+		inputLine = in.readLine();
+		inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
+		arr = inputLine.split(",");
+		TflStream.timeOffset = time - Long.parseLong(arr[2]);
+		
+
+		ArrayList<String> stopJsonList = new ArrayList<String>();
+		
+		while ((inputLine = in.readLine()) != null) {
+			inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
+			arr = inputLine.split(",");
+			//System.out.println(Double.parseDouble(arr[3]));
+			//System.out.println(Double.parseDouble(arr[2]));
+			BusStop temp = new BusStop(arr[1], Double.parseDouble(arr[2]),
+			                           Double.parseDouble(arr[3]));
+			System.out.println(temp);
+			TflStream.map.put(arr[1], temp);
+			stopJsonList.add(temp.toString());
+		}
+		in.close();
+		TflStream.send(stopJsonList);
+	}
 }
 
 class BusStopData extends Thread {

@@ -1,49 +1,20 @@
 package org.wso2.carbon.sample.tfl;
 
-import java.awt.List;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
 public class Bus {
-	String BusID;
-	double Longitude =0 ;
-	double Latitude =0;
-	double LonSpeed;
-	double LatSpeed;
+	String id;
+	double longitude = 0;
+	double latitude = 0;
+	double speed = 0.0;
+	double angle = 0.0;
 	BusStop lastStop;
 	PriorityQueue<Prediction> predictions;
 	HashMap<BusStop, Prediction> predictionsMap;
 
-	private static String msg;
-	private static String part1, part2, part3, part4, part5;
-
-	static {
-		part1 =
-		        "<geodata:rawInputStream xmlns:geodata=\"http://samples.wso2.org/\">\n" + " <geodata:data>\n" + "  <geodata:id>";
-
-		part2 = "</geodata:id>\n" + "  <geodata:timeStamp>";
-
-		part3 = "</geodata:timeStamp>\n" + "  <geodata:latitude>";
-
-		part4 = "</geodata:latitude>\n" + "  <geodata:longitude>";
-
-		part5 = "</geodata:longitude>\n" + " </geodata:data>\n" + "</geodata:rawInputStream>\n";
-
-	}
-
-	public Bus(String id, double lat, double lon, double latspeed, double lonspeed) {
-		this.BusID = id;
-		this.Longitude = lon;
-		this.Latitude = lat;
-		this.LonSpeed = lonspeed;
-		this.LatSpeed = latspeed;
-		predictions = new PriorityQueue<Prediction>();
-		predictionsMap = new HashMap<BusStop, Prediction>();
-	}
-
 	public Bus(String id) {
-		this.BusID = id;
+		this.id = id;
 		predictions = new PriorityQueue<Prediction>();
 		predictionsMap = new HashMap<BusStop, Prediction>();
 	}
@@ -62,51 +33,63 @@ public class Bus {
 	public void setNew() {
 		Prediction p = predictions.peek();
 		if (p != null) {
-			this.Latitude = p.busStop.Latitude;
-			this.Longitude = p.busStop.Longitude;
+			this.latitude = p.busStop.latitude;
+			this.longitude = p.busStop.longitude;
 			lastStop = p.busStop;
 		}
 	}
 
-	public void move(long from, long period) {
+	public String move(long from, long period) {
 		Prediction p = predictions.peek();
-		while (p != null && p.time < from) {
-			p = predictions.poll();
-			System.out.println("Removing prediction " + p.time + " lst time "+TflStream.lastTime);
-			p = predictions.peek();
-		}
-		if (p == null) return;
-		if (lastStop == null) return;
-		if (BusID.trim().equals("8577")) {
-			System.out.println(BusID + " " + (from + period) + " " + this.Latitude + " " +
-			                   this.Longitude + " " + this.lastStop);
+		if(p == null) return null;
 
-			System.out.println(p.time + " " + p.busStop);
-			System.out.println();
+		while(p.time < from) {
+			predictions.poll();
+			p = predictions.peek();
+			if(p == null) return null;
 		}
-		// if (p.busStop == lastStop && (p.busStop.Latitude != this.Latitude ||
-		// p.busStop.Longitude != this.Longitude)) {
-		// predictions.poll();
-		// move(from, period);
-		// }
+		
+		if (p.busStop == lastStop && (p.busStop.latitude != this.latitude ||
+    		 p.busStop.longitude != this.longitude)) {
+    		 predictions.poll();
+    		 move(from, period);
+		}
 		if (p.time < from + period) {
-			this.Latitude = p.busStop.Latitude;
-			this.Longitude = p.busStop.Longitude;
+			this.latitude = p.busStop.latitude;
+			this.longitude = p.busStop.longitude;
 			lastStop = p.busStop;
 			period = from + period - p.time;
 			from = p.time;
 			predictions.poll();
 			p = predictions.peek();
+			if (p == null) return null;
 		}
 		
-		this.Latitude = ((this.Latitude * (p.time - from - period) + p.busStop.Latitude * (period)) / (p.time -
+
+		double newLatitude=
+		                ((this.latitude * (p.time - from - period) + p.busStop.latitude * (period)) / (p.time -
 		                                                                                               from + 0.0));
-		this.Longitude = ((this.Longitude * (p.time - from - period) + p.busStop.Longitude *
+		double newLongitude =
+		                 ((this.longitude * (p.time - from - period) + p.busStop.longitude *
 		                                                               (period)) / (p.time - from + 0.0));
 		
-		msg = part1 + BusID + part2 + (from + period) + part3 + Latitude + part4 + Longitude + part5;
-		SendData.xmlMsg.add(msg);
-		//System.out.println(msg);
-	}
+		angle = Math.atan2(newLongitude - longitude, newLatitude - latitude) * 180 / Math.PI;
+		speed = Math.sqrt(Math.pow(newLatitude - latitude, 2) + Math.pow(newLongitude - longitude, 2))*110*1000*60*60 / period;
 
+		if(id.equals("9223")) {
+			System.out.println(newLatitude + " " + newLongitude + " " + angle);
+			System.out.println(latitude + " " + longitude + " " );
+		}
+		
+		latitude = newLatitude;
+		longitude = newLongitude;
+
+		return this.toString();
+	}
+	@Override
+	public String toString() {
+		return "{'id':'" + id + "','timeStamp':" + System.currentTimeMillis() +
+                ", 'lattitude': " + latitude + ",'longitude': " + longitude +
+                ", 'speed' :"+ speed + ", 'angle':"+angle+"}";
+	}
 }
