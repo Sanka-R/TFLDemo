@@ -21,7 +21,7 @@ public class GetData extends Thread {
         }
 		for (int i = 0; i < 100; i++) {
 			System.out.println("Getting Data");
-			b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2,3,4,5,6&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
+			b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
 			//b = new BusStopData("http://localhost/TFL/data" + i + ".txt");
 			b.start();
 			try {
@@ -34,7 +34,7 @@ public class GetData extends Thread {
 	private static void getStops() throws Exception {
 
 		//String url = "http://localhost/TFL/stop.txt";
-		String url = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2,3,4,5,6&ReturnList=StopID,Latitude,Longitude";
+		String url = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
 		String[] arr;
 
 		URL obj = new URL(url);

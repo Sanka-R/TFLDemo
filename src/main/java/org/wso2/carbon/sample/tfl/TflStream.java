@@ -41,7 +41,7 @@ public class TflStream {
 
 	public static void main(String[] args) throws XMLStreamException {
 		try {
-			Update update = new Update(System.currentTimeMillis(), 1000, endPoint);
+			Update update = new Update(System.currentTimeMillis(), 5000, endPoint);
 			GetData g = new GetData();
 			g.start();
 			System.out.println("Started getting data");
