@@ -40,8 +40,12 @@ public class TflStream {
 	public static final String endPoint =  "http://localhost:9763/endpoints/GpsDataOverHttp/trackingstream";
 
 	public static void main(String[] args) throws XMLStreamException {
+		//Disruption disruption = new Disruption("id123", "severity123", "locationThis", "comment");
+		//disruption.addCoordsLane("0,0,1,1");
+		//disruption.setCoordsPoly("0,2,3,4");
+		//System.out.println(disruption.toString());
 		try {
-			Update update = new Update(System.currentTimeMillis(), 5000, endPoint);
+			Update update = new Update(System.currentTimeMillis(), 1000, endPoint);
 			GetData g = new GetData();
 			g.start();
 			System.out.println("Started getting data");
