@@ -15,12 +15,12 @@ public class GetData extends Thread {
     public void run() {
 
         try {
-            getDistruptions();
+            getDisruptions();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-       /* BusStopData b;
+        /*
+        BusData b;
         try {
             getStops();
         } catch (Exception e1) {
@@ -28,8 +28,8 @@ public class GetData extends Thread {
         }
         for (int i = 0; i < 100; i++) {
             System.out.println("Getting Data");
-            //b = new BusStopData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
-            b = new BusStopData("http://localhost/TFL/small/data" + i + ".txt");
+            //b = new BusData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
+            b = new BusData("http://localhost/TFL/small/data" + i + ".txt");
             b.start();
             try {
                 Thread.sleep(30000);
@@ -38,7 +38,7 @@ public class GetData extends Thread {
         } */
     }
 
-    private static void getDistruptions() throws Exception {
+    private static void getDisruptions() throws Exception {
         //String url = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
         String url = "http://localhost/TFL/tims_feed.xml";
         URL obj = new URL(url);
@@ -53,9 +53,22 @@ public class GetData extends Thread {
 
         //BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-        TrafficStream td = new TrafficStream(con.getInputStream());
+        ArrayList<String> disruptionsList = new ArrayList<String>();
+        TrafficStream td = new TrafficStream(con.getInputStream(), disruptionsList);
         td.getData();
-        System.out.println(td.disruptionsList.get(0));
+        con.disconnect();
+
+        System.out.println(disruptionsList.get(0));
+        ArrayList<String> list = new ArrayList<String>();
+        int count = 0;
+        for(String s:disruptionsList) {
+            if(count < 20) {
+                list.add(s);
+            }
+            count++;
+        }
+        System.out.println(list.get(0));
+        TflStream.send(list, TflStream.endPointTraffic);
     }
 
     private static void getStops() throws Exception {
@@ -99,14 +112,14 @@ public class GetData extends Thread {
             stopJsonList.add(temp.toString());
         }
         in.close();
-        TflStream.send(stopJsonList);
+        TflStream.send(stopJsonList, TflStream.endPointBus);
     }
 }
 
-class BusStopData extends Thread {
+class BusData extends Thread {
     String url;
 
-    public BusStopData(String url) {
+    public BusData(String url) {
         super();
         this.url = url;
     }

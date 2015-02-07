@@ -37,7 +37,8 @@ public class TflStream {
 	static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
 	public static long timeOffset;
 	public static long lastTime = 0;
-	public static final String endPoint =  "http://localhost:9763/endpoints/GpsDataOverHttp/trackingstream";
+	public static final String endPointBus =  "http://localhost:9763/endpoints/GpsDataOverHttp/trackingstream";
+	public static final String endPointTraffic =  "http://localhost:9763/endpoints/GpsDataOverHttp/geostream";
 
 	public static void main(String[] args) throws XMLStreamException {
 		//Disruption disruption = new Disruption("id123", "severity123", "locationThis", "comment");
@@ -45,7 +46,7 @@ public class TflStream {
 		//disruption.setCoordsPoly("0,2,3,4");
 		//System.out.println(disruption.toString());
 		try {
-			Update update = new Update(System.currentTimeMillis(), 1000, endPoint);
+			Update update = new Update(System.currentTimeMillis(), 1000, endPointBus);
 			GetData g = new GetData();
 			g.start();
 			System.out.println("Started getting data");
@@ -57,7 +58,7 @@ public class TflStream {
 		}
 	}
 	
-	public static void send(ArrayList<String> jsonList) {
+	public static void send(ArrayList<String> jsonList, String endPoint) {
 
 		for (String data : jsonList) {
 			HttpClient client = new DefaultHttpClient();

@@ -30,7 +30,7 @@ public class Update extends Thread {
 							jsonList.add(msg);
 					}
 					currentTime += period;
-					TflStream.send(jsonList);
+					TflStream.send(jsonList, endPoint);
 
 					long a = currentTime - System.currentTimeMillis();
 					System.out.println("a " + a);
