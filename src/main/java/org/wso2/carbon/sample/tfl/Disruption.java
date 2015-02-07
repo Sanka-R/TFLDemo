@@ -11,7 +11,7 @@ public class Disruption {
     StringBuilder coordinates = null;
     StringBuilder jsonMsg = null;
     boolean isMultiPolygon = true;
-    final static double tolerance = 0.005;
+    final static double tolerance = 0.0005;
 
     public Disruption() {
         jsonMsg = new StringBuilder();
@@ -44,10 +44,10 @@ public class Disruption {
             return;
         }
         double x1, x2, y1, y2;
-            x1 = Double.parseDouble(temp[0]);
-            y1 = Double.parseDouble(temp[1]);
-            x2 = Double.parseDouble(temp[2]);
-            y2 = Double.parseDouble(temp[3]);
+        x1 = Double.parseDouble(temp[0]);
+        y1 = Double.parseDouble(temp[1]);
+        x2 = Double.parseDouble(temp[2]);
+        y2 = Double.parseDouble(temp[3]);
 
         double f = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow(y1 - y2, 2));
         if (coordinates == null) {
