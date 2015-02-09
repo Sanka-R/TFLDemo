@@ -104,7 +104,7 @@ public class Disruption {
 
     @Override
     public String toString() {
-        return "'id': "+id+", \n"
+        return "{'id': "+id+", \n"
                 +"'properties': { \n"
                 +" 'timeStamp': "+System.currentTimeMillis()+", \n"
                 +" 'state': '"+severity+"', \n"
