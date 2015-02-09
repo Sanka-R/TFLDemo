@@ -30,11 +30,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.wso2.carbon.sample.tfl.Bus.Bus;
+import org.wso2.carbon.sample.tfl.BusStop.BusStop;
 
 
 public class TflStream {
-	static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
-	static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
+	public static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
+	public static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
 	public static long timeOffset;
 	public static long lastTime = 0;
 	public static final String endPointBus =  "http://localhost:9763/endpoints/GpsDataOverHttp/trackingstream";

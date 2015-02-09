@@ -1,4 +1,7 @@
-package org.wso2.carbon.sample.tfl;
+package org.wso2.carbon.sample.tfl.Bus;
+
+import org.wso2.carbon.sample.tfl.BusStop.BusStop;
+import org.wso2.carbon.sample.tfl.TflStream;
 
 import java.util.HashMap;
 import java.util.PriorityQueue;
@@ -90,6 +93,6 @@ public class Bus {
 	public String toString() {
 		return "{'id':'" + id + "','timeStamp':" + System.currentTimeMillis() +
                 ", 'lattitude': " + latitude + ",'longitude': " + longitude +
-                ", 'speed' :"+ speed + ", 'angle':"+angle+"}";
+                ", 'speed' :"+ speed + ", 'angle':"+angle+", 'type' : 'VEHICLE'}";
 	}
 }

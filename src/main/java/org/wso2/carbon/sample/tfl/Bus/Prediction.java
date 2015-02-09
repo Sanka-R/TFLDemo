@@ -1,4 +1,6 @@
-package org.wso2.carbon.sample.tfl;
+package org.wso2.carbon.sample.tfl.Bus;
+
+import org.wso2.carbon.sample.tfl.BusStop.BusStop;
 
 public class Prediction implements Comparable<Prediction> {
 	public BusStop busStop;

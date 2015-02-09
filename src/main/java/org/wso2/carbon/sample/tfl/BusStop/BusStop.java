@@ -1,4 +1,4 @@
-package org.wso2.carbon.sample.tfl;
+package org.wso2.carbon.sample.tfl.BusStop;
 
 public class BusStop {
 	public String id;
@@ -15,6 +15,6 @@ public class BusStop {
 	public String toString() {
 		return "{'id':'" + id + "','timeStamp':" + System.currentTimeMillis() +
                 ", 'lattitude': " + latitude + ",'longitude': " + longitude +
-                ", 'speed' :"+ 0 + ", 'angle':"+0+"}";
+                ", 'speed' :"+ 0 + ", 'angle':"+0+", 'type' : 'STOP'}";
 	}
 }

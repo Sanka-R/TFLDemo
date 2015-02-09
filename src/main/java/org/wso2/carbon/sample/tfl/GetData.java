@@ -1,5 +1,10 @@
 package org.wso2.carbon.sample.tfl;
 
+import org.wso2.carbon.sample.tfl.Bus.BusStream;
+import org.wso2.carbon.sample.tfl.BusStop.BusStop;
+import org.wso2.carbon.sample.tfl.Traffic.Disruption;
+import org.wso2.carbon.sample.tfl.Traffic.TrafficStream;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -20,21 +25,10 @@ public class GetData extends Thread {
             e.printStackTrace();
         }
 
-        BusData b;
         try {
             getStops();
         } catch (Exception e1) {
             System.out.println(e1.getMessage());
-        }
-        for (int i = 0; i < 100; i++) {
-            System.out.println("Getting Data");
-            //b = new BusData("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
-            b = new BusData("http://localhost/TFL/small/data" + i + ".txt");
-            b.start();
-            try {
-                Thread.sleep(30000);
-            } catch (InterruptedException e) {
-            }
         }
     }
 
@@ -53,7 +47,7 @@ public class GetData extends Thread {
 
         //BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-        ArrayList<String> disruptionsList = new ArrayList<String>();
+        ArrayList<Disruption> disruptionsList = new ArrayList<Disruption>();
         TrafficStream td = new TrafficStream(con.getInputStream(), disruptionsList);
         td.getData();
         con.disconnect();
@@ -61,9 +55,11 @@ public class GetData extends Thread {
         System.out.println(disruptionsList.get(0));
         ArrayList<String> list = new ArrayList<String>();
         int count = 0;
-        for(String s:disruptionsList) {
-            //if(count < 20) {
-                list.add(s);
+        for(Disruption disruption:disruptionsList) {
+            System.out.println(disruption.getState());
+            //if(disruption.state.contains("Active")) {
+                list.add(disruption.toString());
+                //System.out.println("Added");
             //}
             count++;
         }
@@ -114,62 +110,20 @@ public class GetData extends Thread {
         in.close();
         TflStream.send(stopJsonList, TflStream.endPointBus);
     }
-}
 
-class BusData extends Thread {
-    String url;
-
-    public BusData(String url) {
-        super();
-        this.url = url;
-    }
-
-    public void run() {
-        // String url =
-        // "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
-        try {
-            long time = System.currentTimeMillis();
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            // optional default is GET
-            con.setRequestMethod("GET");
-
-            int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + url);
-            System.out.println("Response Code : " + responseCode);
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            inputLine = in.readLine();
-            inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-            String[] arr = inputLine.split(",");
-
-            TflStream.lastTime = Long.parseLong(arr[2]) + TflStream.timeOffset;
-
-
-            ArrayList<Bus> newBusses = new ArrayList<Bus>();
-            while ((inputLine = in.readLine()) != null) {
-                inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-                arr = inputLine.split(",");
-
-                Bus bus = TflStream.busses.get(arr[3]);
-                BusStop bs = TflStream.map.get(arr[1]);
-                if (bus == null) {
-                    bus = new Bus(arr[3]);
-                    TflStream.busses.put(arr[3], bus);
-                    newBusses.add(bus);
-                }
-                bus.setData(bs, Long.parseLong(arr[4]));
+    public void getBus() {
+        BusStream b;
+        for (int i = 0; i < 100; i++) {
+            System.out.println("Getting Data");
+            //b = new BusStream("http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime");
+            b = new BusStream("http://localhost/TFL/small/data" + i + ".txt");
+            b.start();
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
             }
-            for (Bus newBus : newBusses) {
-                newBus.setNew();
-            }
-
-            in.close();
-            System.out.println("Added busses to a hashmap. " + (System.currentTimeMillis() - time) + " millis");
-        } catch (Exception e) {
-
         }
+
     }
 }
+

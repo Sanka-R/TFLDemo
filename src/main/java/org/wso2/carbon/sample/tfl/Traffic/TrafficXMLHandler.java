@@ -1,70 +1,24 @@
-package org.wso2.carbon.sample.tfl;
-
-/**
- * Created by sanka on 2/6/15.
- */
+package org.wso2.carbon.sample.tfl.Traffic;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.*;
 import java.util.ArrayList;
 
-public class TrafficStream {
-
-    private InputStream in;
-    ArrayList<String> disruptionsList;
-
-    public TrafficStream(InputStream in, ArrayList<String> list) {
-        this.in = in;
-        try {
-            this.in = new FileInputStream(new File("/var/www/html/TFL/tims_feed.xml"));
-        } catch (FileNotFoundException e) {
-
-        }
-        this.disruptionsList = list;
-    }
-
-    public void getData() {
-
-        try {
-            double t = System.currentTimeMillis();
-            System.out.println("TrafficStream");
-            // Get SAX Parser Factory
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            // Turn on validation, and turn off namespaces
-            factory.setValidating(true);
-            factory.setNamespaceAware(false);
-            SAXParser parser = factory.newSAXParser();
-            parser.parse(in, new MyHandler(disruptionsList));
-            System.out.println("Number of Disruptions added to the list: " + disruptionsList.size());
-            System.out.println("Time taken for parsing: " + (System.currentTimeMillis() - t));
-        } catch (ParserConfigurationException e) {
-            System.out.println("The underlying parser does not support " +
-                    " the requested features.");
-        } catch (FactoryConfigurationError e) {
-            System.out.println("Error occurred obtaining SAX Parser Factory.");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-class MyHandler extends DefaultHandler {
+/**
+ * Created by isuru on 2/9/15.
+ */
+public class TrafficXMLHandler extends DefaultHandler {
     // SAX callback implementations from DocumentHandler, ErrorHandler, etc.
-    private ArrayList<String> list;
+    private ArrayList<Disruption> list;
     private Disruption current = null;
     private StringBuilder sb = new StringBuilder();
     private boolean inLine = false;
     private boolean inPoly = false;
     private boolean startElement = true;
 
-    public MyHandler(ArrayList<String> list) throws SAXException {
+    public TrafficXMLHandler(ArrayList<Disruption> list) throws SAXException {
         this.list = list;
     }
 
@@ -79,7 +33,7 @@ class MyHandler extends DefaultHandler {
             //System.out.println("disruption");
             if (current != null) {
                 current.end();
-                list.add(current.toString());
+                list.add(current);
             }
             current = new Disruption();
             current.id = atts.getValue(0);
@@ -94,7 +48,9 @@ class MyHandler extends DefaultHandler {
                            String qName) throws SAXException {
         String string = sb.toString();
         if (qName.equals("severity")) {
-            current.state = string;
+            current.setSeverity(string);
+        } else if (qName.equals("status")) {
+            current.setState(string);
         } else if (qName.equals("location")) {
             current.setLocation(string);
         } else if (qName.equals("comments")) {

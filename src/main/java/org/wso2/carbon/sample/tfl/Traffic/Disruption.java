@@ -1,4 +1,4 @@
-package org.wso2.carbon.sample.tfl;
+package org.wso2.carbon.sample.tfl.Traffic;
 
 import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -13,16 +13,16 @@ import java.util.ArrayList;
 public class Disruption {
     String id;
     String state;
+    String severity;
     String location;
     String comments;
     String coordinates = null;
-    StringBuilder jsonMsg = null;
     boolean isMultiPolygon = true;
     final static double tolerance = 0.0005;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 
     public Disruption() {
-        jsonMsg = new StringBuilder();
+
     }
 
     public Disruption(String id, String severity, String location, String comments) {
@@ -96,31 +96,21 @@ public class Disruption {
             c = coords.toArray(c);
             GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
             ConvexHull ch = new ConvexHull(c, geometryFactory);
-            System.out.println(ch.getConvexHull().toString());
+            //System.out.println(ch.getConvexHull().toString());
             setCoordsPoly(ch.getConvexHull().getCoordinates());
         }
 
     }
 
-    public void createMsg() {
-        jsonMsg = new StringBuilder("{ \n");
-        jsonMsg.append("'id': ").append(id).append(", \n")
-                .append("'properties': { \n")
-                .append(" 'timeStamp': ").append(System.currentTimeMillis()).append(", \n")
-                .append(" 'state': '").append(state).append("', \n")
-                .append(" 'information': ").append("'Location- ").append(location).append(" Comments- ").append(comments).append("'").append("\n")
-                .append(" }, \n")
-                .append("'geometry' : ").append(coordinates).append("\n}");
-    }
-
     @Override
     public String toString() {
-        /*if (jsonMsg == null) {
-            createMsg();
-        }*/
-        createMsg();
-        //System.out.println("toString" + String.valueOf(jsonMsg));
-        return String.valueOf(jsonMsg);
+        return "'id': "+id+", \n"
+                +"'properties': { \n"
+                +" 'timeStamp': "+System.currentTimeMillis()+", \n"
+                +" 'state': '"+severity+"', \n"
+                +" 'information': "+"'Location- "+location+" Comments- "+comments+"'"+"\n"
+                +" }, \n"
+                +"'geometry' : "+coordinates+"\n}";
     }
 
     public void setComments(String comments) {
@@ -129,5 +119,17 @@ public class Disruption {
 
     public void setLocation(String location) {
         this.location = location.replaceAll("'", "").replaceAll("\"","");
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public String getState() {
+        return state;
     }
 }

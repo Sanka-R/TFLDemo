@@ -1,5 +1,7 @@
 package org.wso2.carbon.sample.tfl;
 
+import org.wso2.carbon.sample.tfl.Bus.Bus;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
