@@ -96,9 +96,9 @@ class MyHandler extends DefaultHandler {
         if (qName.equals("severity")) {
             current.state = string;
         } else if (qName.equals("location")) {
-            current.location = string;
+            current.setLocation(string);
         } else if (qName.equals("comments")) {
-            current.location = string;
+            current.setComments(string);
         } else if (qName.equals("coordinatesLL")) {
             if (inLine) {
                 current.addCoordsLane(string);

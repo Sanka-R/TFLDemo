@@ -19,7 +19,7 @@ public class GetData extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
+
         BusData b;
         try {
             getStops();
@@ -35,7 +35,7 @@ public class GetData extends Thread {
                 Thread.sleep(30000);
             } catch (InterruptedException e) {
             }
-        } */
+        }
     }
 
     private static void getDisruptions() throws Exception {
@@ -62,9 +62,9 @@ public class GetData extends Thread {
         ArrayList<String> list = new ArrayList<String>();
         int count = 0;
         for(String s:disruptionsList) {
-            if(count < 20) {
+            //if(count < 20) {
                 list.add(s);
-            }
+            //}
             count++;
         }
         System.out.println(list.get(0));

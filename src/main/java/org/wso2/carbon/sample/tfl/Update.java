@@ -33,7 +33,7 @@ public class Update extends Thread {
 					TflStream.send(jsonList, endPoint);
 
 					long a = currentTime - System.currentTimeMillis();
-					System.out.println("a " + a);
+					//System.out.println("a " + a);
 					if (a >= 0) {
 						Thread.sleep(a);
 					} else {
