@@ -3,6 +3,7 @@ package org.wso2.carbon.sample.tfl;
 import org.wso2.carbon.sample.tfl.Bus.BusStream;
 import org.wso2.carbon.sample.tfl.BusStop.BusStop;
 import org.wso2.carbon.sample.tfl.Traffic.Disruption;
+import org.wso2.carbon.sample.tfl.Traffic.DisruptionStream;
 import org.wso2.carbon.sample.tfl.Traffic.TrafficStream;
 
 import java.io.BufferedReader;
@@ -24,14 +25,22 @@ public class GetData extends Thread {
     //public static final String BusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
     //public static final String BusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
 
-    public GetData() {
+    private boolean isbus;
+
+    public GetData(boolean isbus) {
         super();
+        this.isbus = isbus;
     }
 
     public void run() {
-        getDisruptions();
-        getStops();
-        getBus();
+        if(isbus){
+            getStops();
+            getBus();
+        }
+        else {
+            getDisruptions();
+        }
+
     }
 
     private void getBus() {
@@ -55,44 +64,18 @@ public class GetData extends Thread {
     }
 
     private static void getDisruptions() {
-        try {
-            URL obj = new URL(TrafficURL);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        DisruptionStream ds;
+        long time = System.currentTimeMillis();
 
-            // optional default is GET
-            con.setRequestMethod("GET");
-
-            int responseCode = con.getResponseCode();
-            System.out.println("\nSending 'GET' request to URL : " + TrafficURL);
-            System.out.println("Response Code : " + responseCode);
-
-            //BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
-            ArrayList<Disruption> disruptionsList = new ArrayList<Disruption>();
-            TrafficStream td = new TrafficStream(con.getInputStream(), disruptionsList);
-            td.getData();
-            con.disconnect();
-
-            System.out.println(disruptionsList.get(0));
-            ArrayList<String> list = new ArrayList<String>();
-            int count = 0;
-            for (Disruption disruption : disruptionsList) {
-                System.out.println(disruption.getState());
-                //if(disruption.state.contains("Active")) {
-                //list.add(disruption.toStringSeverityMinimal());
-                list.add(disruption.toString());
-                //}
-                count++;
+        for(int i = 0; i < 50; i ++){
+            ds = new DisruptionStream(TrafficURL);
+            System.out.println("Getting Disruption Data ");
+            ds.start();
+            try{
+                time += 300000;
+                Thread.sleep(time - System.currentTimeMillis());
+            }catch(InterruptedException e){
             }
-            System.out.println(list.get(0));
-            TflStream.send(list, TflStream.endPointTraffic);
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
     }

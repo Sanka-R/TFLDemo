@@ -49,8 +49,10 @@ public class TflStream {
 		//System.out.println(disruption.toString());
 		try {
 			Update update = new Update(System.currentTimeMillis(), 1000, endPointBus);
-			GetData g = new GetData();
-			g.start();
+			GetData busData = new GetData(true);
+			GetData trafficData = new GetData(false);
+			trafficData.start();
+			busData.start();
 			System.out.println("Started getting data");
 			Thread.sleep(30000);
 			update.start();
