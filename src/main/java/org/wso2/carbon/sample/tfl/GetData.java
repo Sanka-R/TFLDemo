@@ -17,22 +17,37 @@ import java.util.ArrayList;
 
 public class GetData extends Thread {
 
-    public static final String BusStopURL = "http://localhost/TFL/small/stop.txt";
-    public static final String TrafficURL = "http://localhost/TFL/tims_feed.xml";
-    public static final String BusURL = "http://localhost/TFL/small/data";
+    public static final String RecordedBusStopURL = "http://localhost/TFL/small/stop.txt";
+    public static final String RecordedTrafficURL = "http://localhost/TFL/tims_feed.xml";
+    public static final String RecordedBusURL = "http://localhost/TFL/small/data";
 
-    //public static final String TrafficURL = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
-    //public static final String BusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
-    //public static final String BusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
+    public static final String LiveTrafficURL = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
+    public static final String LiveBusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
+    public static final String LiveBusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
+
+    public static String TrafficURL;
+    public static String BusURL;
+    public static String BusStopURL;
 
     private boolean isbus;
 
-    public GetData(boolean isbus) {
+    public GetData(boolean isbus, boolean playback) {
         super();
         this.isbus = isbus;
+
+        if(playback){
+            TrafficURL = RecordedTrafficURL;
+            BusURL = RecordedBusURL;
+            BusStopURL = RecordedBusStopURL;
+        }else{
+            TrafficURL = LiveTrafficURL;
+            BusURL = LiveBusURL;
+            BusStopURL = LiveBusStopURL;
+        }
     }
 
     public void run() {
+
         if(isbus){
             getStops();
             getBus();
@@ -46,8 +61,9 @@ public class GetData extends Thread {
     private void getBus() {
         BusStream b;
         long time = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
-            System.out.println("Getting Data");
+        int i = 0;
+        while (true){
+            //System.out.println("Getting Data");
             String url = BusURL;
             if (BusURL.contains("localhost"))
                 url += i + ".txt";
@@ -59,6 +75,8 @@ public class GetData extends Thread {
                 Thread.sleep(time - System.currentTimeMillis());
             } catch (InterruptedException e) {
             }
+
+            i = (i+1) % 100;
         }
 
     }
@@ -67,9 +85,9 @@ public class GetData extends Thread {
         DisruptionStream ds;
         long time = System.currentTimeMillis();
 
-        for(int i = 0; i < 50; i ++){
+        while(true){
             ds = new DisruptionStream(TrafficURL);
-            System.out.println("Getting Disruption Data ");
+            //System.out.println("Getting Disruption Data ");
             ds.start();
             try{
                 time += 300000;
@@ -98,7 +116,7 @@ public class GetData extends Thread {
             String inputLine;
 
             long time = System.currentTimeMillis();
-            System.out.println(time);
+            //System.out.println(time);
             inputLine = in.readLine();
             inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
             arr = inputLine.split(",");
@@ -114,7 +132,7 @@ public class GetData extends Thread {
                 //System.out.println(Double.parseDouble(arr[2]));
                 BusStop temp = new BusStop(arr[1], Double.parseDouble(arr[2]),
                         Double.parseDouble(arr[3]));
-                System.out.println(temp);
+                //System.out.println(temp);
                 TflStream.map.put(arr[1], temp);
                 stopJsonList.add(temp.toString());
             }

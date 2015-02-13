@@ -25,7 +25,7 @@ public class TrafficStream {
 
         try {
             double t = System.currentTimeMillis();
-            System.out.println("TrafficStream");
+            //System.out.println("TrafficStream");
             // Get SAX Parser Factory
             SAXParserFactory factory = SAXParserFactory.newInstance();
             // Turn on validation, and turn off namespaces

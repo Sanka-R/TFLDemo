@@ -63,7 +63,7 @@ public class Disruption {
     public void addCoordsLane(String co) {
         String[] temp = co.split(",");
         if (temp.length != 4) {
-            System.out.println(co);
+            //System.out.println(co);
             return;
         }
         try {

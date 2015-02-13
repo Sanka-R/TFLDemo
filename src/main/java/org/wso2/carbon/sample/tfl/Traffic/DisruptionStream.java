@@ -43,18 +43,18 @@ public class DisruptionStream extends Thread {
             td.getData();
             con.disconnect();
 
-            System.out.println(disruptionsList.get(0));
+            //System.out.println(disruptionsList.get(0));
             ArrayList<String> list = new ArrayList<String>();
             int count = 0;
             for (Disruption disruption : disruptionsList) {
-                System.out.println(disruption.getState());
+                //System.out.println(disruption.getState());
                 //if(disruption.state.contains("Active")) {
                 //list.add(disruption.toStringSeverityMinimal());
                 list.add(disruption.toString());
                 //}
                 count++;
             }
-            System.out.println(list.get(0));
+            //System.out.println(list.get(0));
             TflStream.send(list, TflStream.endPointTraffic);
 
         } catch (MalformedURLException e) {

@@ -51,6 +51,9 @@ public class BusStream extends Thread {
 
                 Bus bus = TflStream.busses.get(arr[3]);
                 BusStop bs = TflStream.map.get(arr[1]);
+                if(bs == null) {
+                    continue;
+                }
                 if (bus == null) {
                     bus = new Bus(arr[3]);
                     TflStream.busses.put(arr[3], bus);

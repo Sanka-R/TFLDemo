@@ -78,10 +78,6 @@ public class Bus {
 		angle = Math.atan2(newLongitude - longitude, newLatitude - latitude) * 180 / Math.PI;
 		speed = Math.sqrt(Math.pow(newLatitude - latitude, 2) + Math.pow(newLongitude - longitude, 2))*110*1000*60*60 / period;
 
-		if(id.equals("9223")) {
-			System.out.println(newLatitude + " " + newLongitude + " " + angle);
-			System.out.println(latitude + " " + longitude + " " );
-		}
 		
 		latitude = newLatitude;
 		longitude = newLongitude;

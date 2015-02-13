@@ -36,6 +36,7 @@ import org.wso2.carbon.sample.tfl.BusStop.BusStop;
 
 public class TflStream {
 	public static HashMap<String, BusStop> map = new HashMap<String, BusStop>();
+
 	public static ConcurrentHashMap<String, Bus> busses = new ConcurrentHashMap<String, Bus>();
 	public static long timeOffset;
 	public static long lastTime = 0;
@@ -47,10 +48,13 @@ public class TflStream {
 		//disruption.addCoordsLane("0,0,1,1");
 		//disruption.setCoordsPoly("0,2,3,4");
 		//System.out.println(disruption.toString());
+
+		boolean playback = Boolean.parseBoolean(args[0]);
+
 		try {
 			Update update = new Update(System.currentTimeMillis(), 1000, endPointBus);
-			GetData busData = new GetData(true);
-			GetData trafficData = new GetData(false);
+			GetData busData = new GetData(true, playback);
+			GetData trafficData = new GetData(false, playback);
 			trafficData.start();
 			busData.start();
 			System.out.println("Started getting data");
