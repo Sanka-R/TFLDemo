@@ -22,7 +22,7 @@ public class GetData extends Thread {
 
     //public static final String TrafficURL = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
     //public static final String BusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
-    //public static final String BusURL = http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
+    //public static final String BusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
 
     public GetData() {
         super();
@@ -79,8 +79,8 @@ public class GetData extends Thread {
             for (Disruption disruption : disruptionsList) {
                 System.out.println(disruption.getState());
                 //if(disruption.state.contains("Active")) {
+                //list.add(disruption.toStringSeverityMinimal());
                 list.add(disruption.toString());
-                //System.out.println("Added");
                 //}
                 count++;
             }

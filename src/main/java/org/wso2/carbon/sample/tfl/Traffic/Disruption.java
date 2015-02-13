@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by sanka on 2/6/15.
@@ -17,7 +18,8 @@ public class Disruption {
     String location;
     String comments;
     String coordinates = null;
-    boolean isMultiPolygon = true;
+
+    public boolean isMultiPolygon = true;
     final static double tolerance = 0.0005;
     ArrayList<Coordinate> coords = new ArrayList<Coordinate>();
 
@@ -40,7 +42,7 @@ public class Disruption {
             if (i != 0) {
                 sb.append(",");
             }
-            sb.append("[").append(temp[i]).append(",").append(temp[i + 1]).append("]");
+            sb.append("[").append(Double.parseDouble(temp[i])).append(",").append(Double.parseDouble(temp[i + 1])).append("]");
         }
         sb.append("]] \n }");
         coordinates = sb.toString();
@@ -113,6 +115,7 @@ public class Disruption {
                 +"'geometry' : "+coordinates+"\n}";
     }
 
+
     public void setComments(String comments) {
         this.comments = comments.replaceAll("'", "").replaceAll("\"","");
     }
@@ -132,4 +135,5 @@ public class Disruption {
     public String getState() {
         return state;
     }
+
 }

@@ -47,7 +47,7 @@ public class Update extends Thread {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new RuntimeException("asd");
+				//throw new RuntimeException("asd");
 			}
 		}
 	}

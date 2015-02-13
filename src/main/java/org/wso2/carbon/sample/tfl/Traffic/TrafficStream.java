@@ -18,11 +18,6 @@ public class TrafficStream {
 
     public TrafficStream(InputStream in, ArrayList<Disruption> list) {
         this.in = in;
-        try {
-            this.in = new FileInputStream(new File("/var/www/html/TFL/tims_feed.xml"));
-        } catch (FileNotFoundException e) {
-
-        }
         this.disruptionsList = list;
     }
 

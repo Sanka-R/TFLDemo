@@ -55,7 +55,7 @@ public class Bus {
 		if (p.busStop == lastStop && (p.busStop.latitude != this.latitude ||
     		 p.busStop.longitude != this.longitude)) {
     		 predictions.poll();
-    		 move(from, period);
+    		 return move(from, period);
 		}
 		if (p.time < from + period) {
 			this.latitude = p.busStop.latitude;
@@ -67,7 +67,6 @@ public class Bus {
 			p = predictions.peek();
 			if (p == null) return null;
 		}
-		
 
 		double newLatitude=
 		                ((this.latitude * (p.time - from - period) + p.busStop.latitude * (period)) / (p.time -
