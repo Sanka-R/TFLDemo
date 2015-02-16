@@ -2,9 +2,7 @@ package org.wso2.carbon.sample.tfl;
 
 import org.wso2.carbon.sample.tfl.Bus.BusStream;
 import org.wso2.carbon.sample.tfl.BusStop.BusStop;
-import org.wso2.carbon.sample.tfl.Traffic.Disruption;
 import org.wso2.carbon.sample.tfl.Traffic.DisruptionStream;
-import org.wso2.carbon.sample.tfl.Traffic.TrafficStream;
 
 import java.io.BufferedReader;
 import java.io.IOException;

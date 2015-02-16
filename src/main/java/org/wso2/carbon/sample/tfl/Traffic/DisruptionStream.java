@@ -4,6 +4,10 @@ import org.wso2.carbon.sample.tfl.Bus.Bus;
 import org.wso2.carbon.sample.tfl.BusStop.BusStop;
 import org.wso2.carbon.sample.tfl.TflStream;
 
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,19 +43,38 @@ public class DisruptionStream extends Thread {
             //BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
             ArrayList<Disruption> disruptionsList = new ArrayList<Disruption>();
-            TrafficStream td = new TrafficStream(con.getInputStream(), disruptionsList);
-            td.getData();
+            try {
+                double t = System.currentTimeMillis();
+                //System.out.println("TrafficStream");
+                // Get SAX Parser Factory
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                // Turn on validation, and turn off namespaces
+                factory.setValidating(true);
+                factory.setNamespaceAware(false);
+                SAXParser parser = factory.newSAXParser();
+                parser.parse(con.getInputStream(), new TrafficXMLHandler(disruptionsList));
+                System.out.println("Number of Disruptions added to the list: " + disruptionsList.size());
+                System.out.println("Time taken for parsing: " + (System.currentTimeMillis() - t));
+            } catch (ParserConfigurationException e) {
+                System.out.println("The underlying parser does not support " +
+                        " the requested features.");
+            } catch (FactoryConfigurationError e) {
+                System.out.println("Error occurred obtaining SAX Parser Factory.");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             con.disconnect();
 
             //System.out.println(disruptionsList.get(0));
             ArrayList<String> list = new ArrayList<String>();
             int count = 0;
             for (Disruption disruption : disruptionsList) {
-                //System.out.println(disruption.getState());
-                //if(disruption.state.contains("Active")) {
+                if (!disruption.isMultiPolygon)
+                    System.out.println(disruption.toString());
+                if(disruption.state.contains("Active")) {
                 //list.add(disruption.toStringSeverityMinimal());
                 list.add(disruption.toString());
-                //}
+                }
                 count++;
             }
             //System.out.println(list.get(0));

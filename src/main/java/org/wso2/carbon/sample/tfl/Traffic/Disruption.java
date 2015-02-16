@@ -3,6 +3,8 @@ package org.wso2.carbon.sample.tfl.Traffic;
 import com.vividsolutions.jts.algorithm.ConvexHull;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class Disruption {
     String location;
     String comments;
     String coordinates = null;
+    public static GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
     public boolean isMultiPolygon = true;
     final static double tolerance = 0.0005;
@@ -92,7 +95,23 @@ public class Disruption {
         }
     */
     public void end() {
-        if (isMultiPolygon) {
+        if (isMultiPolygon) {/*
+            ArrayList<Polygon> polygons = new ArrayList<>();
+            StringBuilder sb = new StringBuilder("{ \n 'type': 'MultiPolygon', \n 'coordinates': [");
+            for(int i=0; i <coords.size();i+=4) {
+                if(i!=0) {
+                    sb.append(",");
+                }
+                sb.append("[[");
+                for(int j=i;j<i+4;j++) {
+                    if(j!=i)
+                        sb.append(",");
+                    sb.append("[").append(coords.get(i).x).append(",").append(coords.get(i).y).append("]");
+                }
+                sb.append("]]");
+            }
+            sb.append("] \n }");
+            coordinates = sb.toString();*/
 
             Coordinate[] c = new Coordinate[coords.size()];
             c = coords.toArray(c);
@@ -100,6 +119,7 @@ public class Disruption {
             ConvexHull ch = new ConvexHull(c, geometryFactory);
             //System.out.println(ch.getConvexHull().toString());
             setCoordsPoly(ch.getConvexHull().getCoordinates());
+
         }
 
     }
