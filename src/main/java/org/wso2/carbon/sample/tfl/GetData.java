@@ -19,25 +19,34 @@ public class GetData extends Thread {
     public static final String RecordedTrafficURL = "http://localhost/TFL/tims_feed.xml";
     public static final String RecordedBusURL = "http://localhost/TFL/data";
 
-    // The following would give the busses and bus stops to bus lineids 61,62,63,64,65 and 66
-    // Change this string to empty for all bus lines
-    public static final String busLines = "LineID=61,62,63,64,65,66&";
-
     public static final String LiveTrafficURL = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
-    public static final String LiveBusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?"+busLines+"ReturnList=StopID,Latitude,Longitude";
-    public static final String LiveBusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?"+busLines+"ReturnList=StopID,LineName,VehicleID,EstimatedTime";
+    public static final String LiveBusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?ReturnList=StopPointName,Latitude,Longitude";
+    public static final String LiveBusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?ReturnList=StopPointName,LineName,VehicleID,EstimatedTime";
 
 
-    public static String TrafficURL;
-    public static String BusURL;
-    public static String BusStopURL;
+    public String TrafficURL;
+    public String BusURL;
+    public String BusStopURL;
 
     private boolean isbus;
 
+    public GetData(boolean isbus, boolean playback, String lineNames) {
+        super();
+        this.isbus = isbus;
+        if(playback){
+            TrafficURL = RecordedTrafficURL;
+            BusURL = RecordedBusURL;
+            BusStopURL = RecordedBusStopURL;
+        }else{
+            TrafficURL = LiveTrafficURL;
+            BusURL = LiveBusURL+lineNames;
+            BusStopURL = LiveBusStopURL+lineNames;
+            System.out.println(BusStopURL);
+        }
+    }
     public GetData(boolean isbus, boolean playback) {
         super();
         this.isbus = isbus;
-
         if(playback){
             TrafficURL = RecordedTrafficURL;
             BusURL = RecordedBusURL;
@@ -84,7 +93,7 @@ public class GetData extends Thread {
 
     }
 
-    private static void getDisruptions() {
+    private void getDisruptions() {
         DisruptionStream ds;
         long time = System.currentTimeMillis();
 
@@ -101,7 +110,7 @@ public class GetData extends Thread {
 
     }
 
-    private static void getStops() {
+    private void getStops() {
         try {
             String[] arr;
 
@@ -120,22 +129,20 @@ public class GetData extends Thread {
 
             long time = System.currentTimeMillis();
             //System.out.println(time);
-            inputLine = in.readLine();
-            inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-            arr = inputLine.split(",");
+            inputLine = in.readLine().trim();
+            inputLine = inputLine.substring(1, inputLine.length()-1);
+            arr = inputLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
             TflStream.timeOffset = time - Long.parseLong(arr[2]);
 
 
             ArrayList<String> stopJsonList = new ArrayList<String>();
 
             while ((inputLine = in.readLine()) != null) {
-                inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-                arr = inputLine.split(",");
-                //System.out.println(Double.parseDouble(arr[3]));
-                //System.out.println(Double.parseDouble(arr[2]));
+                inputLine = inputLine.trim();
+                inputLine = inputLine.substring(1, inputLine.length()-1);
+                arr = inputLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
                 BusStop temp = new BusStop(arr[1], Double.parseDouble(arr[2]),
                         Double.parseDouble(arr[3]));
-                //System.out.println(temp);
                 TflStream.map.put(arr[1], temp);
                 stopJsonList.add(temp.toString());
             }

@@ -21,8 +21,6 @@ public class BusStream extends Thread {
     }
 
     public void run() {
-        // String url =
-        // "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=1,2&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
         try {
             long time = System.currentTimeMillis();
             URL obj = new URL(url);
@@ -37,26 +35,27 @@ public class BusStream extends Thread {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
-            inputLine = in.readLine();
-            inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-            String[] arr = inputLine.split(",");
+            inputLine = in.readLine().trim();
+            inputLine = inputLine.substring(1, inputLine.length()-1);
+            String[] arr = inputLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
             TflStream.lastTime = Long.parseLong(arr[2]) + TflStream.timeOffset;
 
 
             ArrayList<Bus> newBusses = new ArrayList<Bus>();
             while ((inputLine = in.readLine()) != null) {
-                inputLine = inputLine.replaceAll("[\\[\\]\"]", "");
-                arr = inputLine.split(",");
-
-                Bus bus = TflStream.busses.get(arr[3]);
+                inputLine = inputLine.trim();
+                inputLine = inputLine.substring(1, inputLine.length()-1);
+                arr = inputLine.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+                String busId = arr[2].substring(1,arr[2].length()-1)+" ("+arr[3]+")";
+                Bus bus = TflStream.busses.get(busId);
                 BusStop bs = TflStream.map.get(arr[1]);
                 if(bs == null) {
                     continue;
                 }
                 if (bus == null) {
-                    bus = new Bus(arr[2]+"-"+arr[3]);
-                    TflStream.busses.put(arr[3], bus);
+                    bus = new Bus(busId);
+                    TflStream.busses.put(busId, bus);
                     newBusses.add(bus);
                 }
                 bus.setData(bs, Long.parseLong(arr[4]));

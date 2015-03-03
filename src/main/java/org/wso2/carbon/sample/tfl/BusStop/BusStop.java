@@ -13,8 +13,16 @@ public class BusStop {
 
 	@Override
 	public String toString() {
-		return "{'id':'" + id + "','timeStamp':" + System.currentTimeMillis() +
+		return "{'id':'" + shortenName(id.substring(1,id.length()-1)) + "','timeStamp':" + System.currentTimeMillis() +
                 ", 'lattitude': " + latitude + ",'longitude': " + longitude +
                 ", 'speed' :"+ 0 + ", 'angle':"+0+", 'type' : 'STOP'}";
+	}
+
+	private String shortenName(String name) {
+		if(name.length()>23) {
+			return name.substring(0,20)+"...";
+		} else {
+			return name;
+		}
 	}
 }

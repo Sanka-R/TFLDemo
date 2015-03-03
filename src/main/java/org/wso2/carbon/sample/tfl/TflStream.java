@@ -45,13 +45,24 @@ public class TflStream {
 
 	public static void main(String[] args) throws XMLStreamException {
 		boolean playback = false;
+		String lineNames = "61,62,63,64,65,66";
 		if(args.length != 0) {
 			playback = Boolean.parseBoolean(args[0]);
+		}
+		if(args.length > 1) {
+			lineNames = args[1];
+		}
+		System.out.println("Playback="+playback);
+		System.out.println("LineNames="+lineNames);
+		if(lineNames.trim().length()>0 && !lineNames.equalsIgnoreCase("all")) {
+			lineNames = "&LineName="+lineNames;
+		} else {
+			lineNames="";
 		}
 
 		try {
 			Update update = new Update(System.currentTimeMillis(), 1000, endPointBus);
-			GetData busData = new GetData(true, playback);
+			GetData busData = new GetData(true, playback, lineNames);
 			GetData trafficData = new GetData(false, playback);
 			trafficData.start();
 			busData.start();
