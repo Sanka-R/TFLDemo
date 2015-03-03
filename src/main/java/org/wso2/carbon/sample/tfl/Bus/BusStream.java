@@ -55,7 +55,7 @@ public class BusStream extends Thread {
                     continue;
                 }
                 if (bus == null) {
-                    bus = new Bus(arr[3]);
+                    bus = new Bus(arr[2]+"-"+arr[3]);
                     TflStream.busses.put(arr[3], bus);
                     newBusses.add(bus);
                 }

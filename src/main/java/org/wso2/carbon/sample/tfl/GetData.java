@@ -15,13 +15,18 @@ import java.util.ArrayList;
 
 public class GetData extends Thread {
 
-    public static final String RecordedBusStopURL = "http://localhost/TFL/small/stop.txt";
+    public static final String RecordedBusStopURL = "http://localhost/TFL/stop.txt";
     public static final String RecordedTrafficURL = "http://localhost/TFL/tims_feed.xml";
-    public static final String RecordedBusURL = "http://localhost/TFL/small/data";
+    public static final String RecordedBusURL = "http://localhost/TFL/data";
+
+    // The following would give the busses and bus stops to bus lineids 61,62,63,64,65 and 66
+    // Change this string to empty for all bus lines
+    public static final String busLines = "LineID=61,62,63,64,65,66&";
 
     public static final String LiveTrafficURL = "http://data.tfl.gov.uk/tfl/syndication/feeds/tims_feed.xml";
-    public static final String LiveBusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,Latitude,Longitude";
-    public static final String LiveBusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?LineID=61,62,63,64,65,66&ReturnList=StopID,LineID,VehicleID,EstimatedTime";
+    public static final String LiveBusStopURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?"+busLines+"ReturnList=StopID,Latitude,Longitude";
+    public static final String LiveBusURL = "http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?"+busLines+"ReturnList=StopID,LineName,VehicleID,EstimatedTime";
+
 
     public static String TrafficURL;
     public static String BusURL;
